@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import TopBar from '@/components/common/TopBar';
 import { useAuth } from '@/lib/auth/useAuth';
+import { useSpeechRecognition } from '@/lib/hooks/useSpeechRecognition';
 import { SPARK } from '@/lib/constants';
 
 // 상태 타입
@@ -21,6 +22,36 @@ export default function RecordPage() {
   } | null>(null);
   const [sparkAwarded, setSparkAwarded] = useState(0);
   const [saveError, setSaveError] = useState<string | null>(null);
+
+  // 음성 인식 훅
+  const {
+    isListening,
+    transcript,
+    interimTranscript,
+    error: speechError,
+    isSupported: speechSupported,
+    startListening,
+    stopListening,
+    resetTranscript,
+  } = useSpeechRecognition();
+
+  // 음성 인식 결과를 rawInput에 반영
+  useEffect(() => {
+    if (transcript) {
+      setRawInput(transcript);
+    }
+  }, [transcript]);
+
+  // 음성 버튼 토글
+  const handleVoiceToggle = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      resetTranscript();
+      setRawInput('');
+      startListening();
+    }
+  };
 
   // 인증 완료 후 자동으로 input 상태로 전환
   if (!authLoading && user && state === 'auth') {
@@ -123,17 +154,54 @@ export default function RecordPage() {
               <p className="text-muted-text">오늘 어떤 일을 하셨나요?</p>
             </div>
 
+            {/* 음성 녹음 버튼 */}
+            {speechSupported && (
+              <div className="flex justify-center">
+                <button
+                  onClick={handleVoiceToggle}
+                  className={`relative w-20 h-20 rounded-full flex items-center justify-center text-3xl shadow-lg transition-all ${
+                    isListening
+                      ? 'bg-error text-white animate-pulse shadow-error/30'
+                      : 'bg-primary text-white shadow-primary/20 hover:bg-primary-dark'
+                  }`}
+                  aria-label={isListening ? '녹음 중지' : '음성으로 기록'}
+                >
+                  {isListening ? '⏹' : '🎤'}
+                </button>
+              </div>
+            )}
+
+            {/* 음성 인식 상태 표시 */}
+            {isListening && (
+              <p className="text-center text-sm text-primary animate-pulse">
+                🎙️ 말씀하시는 중... (다시 누르면 종료)
+              </p>
+            )}
+
+            {/* 음성 인식 에러 */}
+            {speechError && (
+              <p className="text-center text-sm text-error">{speechError}</p>
+            )}
+
+            {/* 미지원 브라우저 안내 */}
+            {!speechSupported && (
+              <p className="text-center text-xs text-muted-text">
+                ※ 이 브라우저는 음성 입력을 지원하지 않아요. 텍스트로 입력해주세요.
+              </p>
+            )}
+
+            {/* 텍스트 입력 영역 */}
             <textarea
-              value={rawInput}
+              value={rawInput + (interimTranscript ? interimTranscript : '')}
               onChange={(e) => setRawInput(e.target.value)}
-              placeholder="두서없이 적어도 괜찮아요. 노리가 정리해드릴게요 🦊"
+              placeholder="두서없이 적어도 괜찮아요. 노리가 정리해드릴게요 🦊&#10;🎤 버튼을 눌러 말로 기록할 수도 있어요!"
               className="w-full min-h-[200px] p-4 rounded-xl border border-border bg-card resize-none focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
               autoFocus
             />
 
             <button
               onClick={handleStructure}
-              disabled={!rawInput.trim()}
+              disabled={!rawInput.trim() && !interimTranscript}
               className="w-full py-4 rounded-xl bg-primary text-white font-bold text-lg shadow-lg shadow-primary/20 hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               정리해주세요 ✨
