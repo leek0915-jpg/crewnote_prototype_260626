@@ -102,7 +102,7 @@ export default function RecordPage() {
   const handleSave = async () => {
     if (!structuredNote) return;
     if (!user) {
-      setSaveError('인증이 필요합니다. 페이지를 새로고침해주세요.');
+      setSaveError('인증이 필요합니다. 아래 로그인 재시도를 눌러주세요.');
       return;
     }
 
@@ -113,7 +113,7 @@ export default function RecordPage() {
       const userId = user.uid;
 
       const db = getFirebaseDb();
-      if (!db) throw new Error('Firestore 초기화 패');
+      if (!db) throw new Error('Firestore 초기화 실');
 
       // 1. notes 컬렉션에 문서 추가
       await addDoc(collection(db, 'notes'), {
@@ -170,7 +170,7 @@ export default function RecordPage() {
 
         {state === 'auth' && authError && (
           <div className="flex flex-col items-center justify-center py-12 space-y-4">
-            <div className="text-6xl">⚠️</div>
+            <div className="text-6xl">️</div>
             <p className="text-muted-text text-center">{authError}</p>
             <button
               onClick={retryAuth}
@@ -254,6 +254,16 @@ export default function RecordPage() {
         {/* 미리보기 상태 */}
         {state === 'preview' && structuredNote && (
           <div className="space-y-4">
+            {/* 로그인 상태 표시 */}
+            <div className={`text-xs px-3 py-1.5 rounded-full inline-flex items-center gap-1.5 ${
+              user ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+            }`}>
+              <span>{user ? '🟢' : ''}</span>
+              <span>
+                {authLoading ? '로그인 확인 중...' : user ? `로그인됨 (${user.uid.slice(0, 8)}...)` : '로그인 안됨'}
+              </span>
+            </div>
+
             <h2 className="text-lg font-bold">이렇게 정리했어요!</h2>
 
             <div className="bg-card rounded-xl p-4 border border-border space-y-3">
@@ -275,7 +285,7 @@ export default function RecordPage() {
 
               {structuredNote.collaborators.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-semibold text-primary">👥 함께한 사람</h3>
+                  <h3 className="text-sm font-semibold text-primary"> 함께한 사람</h3>
                   <p className="mt-1">{structuredNote.collaborators.join(', ')}</p>
                 </div>
               )}
@@ -305,6 +315,17 @@ export default function RecordPage() {
               <p className="text-sm text-error text-center">{saveError}</p>
             )}
 
+            {!user && !authLoading && (
+              <div className="text-center">
+                <button
+                  onClick={retryAuth}
+                  className="text-sm text-primary underline hover:text-primary-dark"
+                >
+                  🔐 로그인 재시도하기
+                </button>
+              </div>
+            )}
+
             <div className="flex gap-2">
               <button
                 onClick={() => {
@@ -319,9 +340,10 @@ export default function RecordPage() {
               </button>
               <button
                 onClick={handleSave}
-                className="flex-1 py-3 rounded-xl bg-primary text-white font-bold shadow-lg shadow-primary/20 hover:bg-primary-dark transition-colors"
+                disabled={!user || authLoading}
+                className="flex-1 py-3 rounded-xl bg-primary text-white font-bold shadow-lg shadow-primary/20 hover:bg-primary-dark disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
-                저장하기
+                {authLoading ? '로그인 중...' : !user ? '로그인 필요' : '저장하기'}
               </button>
             </div>
           </div>
