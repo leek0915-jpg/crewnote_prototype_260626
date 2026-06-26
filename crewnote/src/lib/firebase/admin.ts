@@ -23,11 +23,21 @@ function initializeAdmin() {
     if (getApps().length > 0) {
       adminApp = getApps()[0];
     } else {
-      // 서비스 계정 인증 방식 선택
-      const credentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+      //  Vercel 배포: 환경변수에 JSON 전체 저장
+      const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+      if (serviceAccountJson) {
+        const serviceAccount = JSON.parse(serviceAccountJson);
+        adminApp = initializeApp({
+          credential: cert(serviceAccount),
+          projectId: serviceAccount.project_id,
+        });
+        initialized = true;
+        return;
+      }
 
+      // 로컬: 서비스 계정 키 파일 사용
+      const credentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
       if (credentialsPath && fs.existsSync(credentialsPath)) {
-        // 로컬: 서비스 계정 키 파일 사용
         const serviceAccount = JSON.parse(
           fs.readFileSync(path.resolve(credentialsPath), 'utf-8')
         );
@@ -35,8 +45,12 @@ function initializeAdmin() {
           credential: cert(serviceAccount),
           projectId: serviceAccount.project_id,
         });
-      } else if (process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID) {
-        // Vercel 배포: Application Default Credentials 사용
+        initialized = true;
+        return;
+      }
+
+      // fallback: projectId만
+      if (process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID) {
         adminApp = initializeApp({
           projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
         });
