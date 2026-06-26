@@ -1,0 +1,14 @@
+{
+  "name": "crewnote-app",
+  "private": true,
+  "scripts": {
+    "dev": "cd crewnote && npx next dev",
+    "build": "cd crewnote && npx next build",
+    "start": "cd crewnote && npx next start",
+    "lint": "cd crewnote && npx eslint"
+  },
+  "dependencies": {
+    "firebase": "^12.15.0",
+    "firebase-admin": "^14.1.0"
+  }
+}
