@@ -2,11 +2,21 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import {
+  collection,
+  query,
+  where,
+  orderBy,
+  getDocs,
+  doc,
+  getDoc,
+} from 'firebase/firestore';
+import { getFirebaseDb } from '@/lib/firebase/client';
 import TopBar from '@/components/common/TopBar';
 import { useAuth } from '@/lib/auth/useAuth';
 import { BRAND } from '@/lib/constants';
 
-// Note 타입 (API 응답용)
+// Note 타입
 interface NoteCard {
   id: string;
   createdAt: string;
@@ -19,7 +29,7 @@ type PageState = 'auth' | 'loading' | 'empty' | 'loaded';
 
 export default function FeedPage() {
   const router = useRouter();
-  const { user, loading: authLoading, error: authError, getIdToken, retryAuth } = useAuth();
+  const { user, loading: authLoading, error: authError, retryAuth } = useAuth();
   const [state, setState] = useState<PageState>('auth');
   const [notes, setNotes] = useState<NoteCard[]>([]);
   const [sparkTotal, setSparkTotal] = useState(0);
@@ -31,28 +41,43 @@ export default function FeedPage() {
     setState('loading');
 
     try {
-      const token = await getIdToken();
-      if (!token) {
-        throw new Error('인증 토큰을 가져올 수 없습니다.');
-      }
+      const db = getFirebaseDb();
+      if (!db) throw new Error('Firestore 초기화 실패');
 
-      const response = await fetch('/api/notes', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const result = await response.json();
+      const userId = user.uid;
 
-      if (!response.ok) {
-        throw new Error(result.error || '노트 로딩 실패');
-      }
+      // 1. users 문서에서 sparkTotal 조회
+      const userDoc = await getDoc(doc(db, 'users', userId));
+      setSparkTotal(userDoc.exists() ? (userDoc.data()?.sparkTotal || 0) : 0);
 
-      setSparkTotal(result.sparkTotal || 0);
-      setNotes(result.notes || []);
-      setState(result.notes?.length > 0 ? 'loaded' : 'empty');
+      // 2. notes 컬렉션에서 내 노트 조회 (userId 필터)
+      const notesQuery = query(
+        collection(db, 'notes'),
+        where('userId', '==', userId)
+      );
+      const notesSnapshot = await getDocs(notesQuery);
+
+      // 메모리에서 최신순 정렬
+      const notesList: NoteCard[] = notesSnapshot.docs
+        .map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            createdAt: data.createdAt?.toDate?.().toISOString() || new Date().toISOString(),
+            summary: data.summary || '',
+            mainTasks: data.mainTasks || [],
+            sparkAwarded: data.sparkAwarded || 10,
+          };
+        })
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+      setNotes(notesList);
+      setState(notesList.length > 0 ? 'loaded' : 'empty');
     } catch (error) {
       console.error('노트 로딩 에러:', error);
       setState('empty');
     }
-  }, [user, getIdToken]);
+  }, [user]);
 
   // 인증 완료 후 자동으로 노트 로드
   useEffect(() => {
@@ -82,7 +107,7 @@ export default function FeedPage() {
         {/* 인증 대기 */}
         {state === 'auth' && authLoading && (
           <div className="flex flex-col items-center justify-center py-20 space-y-4">
-            <div className="text-6xl animate-bounce">🦊</div>
+            <div className="text-6xl animate-bounce"></div>
             <p className="text-muted-text">불러오는 중...</p>
           </div>
         )}
@@ -166,7 +191,7 @@ export default function FeedPage() {
                     {note.summary}
                   </p>
                   <span className="text-xs text-spark font-semibold whitespace-nowrap bg-spark-glow/30 px-2 py-0.5 rounded-full">
-                    ✨ +{note.sparkAwarded}
+                     +{note.sparkAwarded}
                   </span>
                 </div>
 

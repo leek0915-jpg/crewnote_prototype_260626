@@ -1,6 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  doc,
+  updateDoc,
+  increment,
+  setDoc,
+} from 'firebase/firestore';
+import { getFirebaseDb } from '@/lib/firebase/client';
 import TopBar from '@/components/common/TopBar';
 import { useAuth } from '@/lib/auth/useAuth';
 import { useSpeechRecognition } from '@/lib/hooks/useSpeechRecognition';
@@ -10,7 +21,8 @@ import { SPARK } from '@/lib/constants';
 type RecordState = 'auth' | 'input' | 'processing' | 'preview';
 
 export default function RecordPage() {
-  const { user, loading: authLoading, error: authError, getIdToken, retryAuth } = useAuth();
+  const router = useRouter();
+  const { user, loading: authLoading, error: authError, retryAuth } = useAuth();
   const [state, setState] = useState<RecordState>('auth');
   const [rawInput, setRawInput] = useState('');
   const [structuredNote, setStructuredNote] = useState<{
@@ -74,7 +86,7 @@ export default function RecordPage() {
       const result = await response.json();
 
       if (!response.ok || !result.success) {
-        throw new Error(result.error || '구조화 실패');
+        throw new Error(result.error || '구조화 패');
       }
 
       setStructuredNote(result.data);
@@ -93,28 +105,46 @@ export default function RecordPage() {
     setSaveError(null);
 
     try {
-      const token = await getIdToken();
-      if (!token) {
-        throw new Error('인증 토큰을 가져올 수 없습니다.');
-      }
+      const spark = sparkAwarded || SPARK.perNote;
+      const userId = user.uid;
 
-      const response = await fetch('/api/notes', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ rawInput, structuredNote }),
+      const db = getFirebaseDb();
+      if (!db) throw new Error('Firestore 초기화 실패');
+
+      // 1. notes 컬렉션에 문서 추가
+      await addDoc(collection(db, 'notes'), {
+        userId,
+        createdAt: serverTimestamp(),
+        rawInput,
+        source: 'text' as const,
+        summary: structuredNote.summary || '',
+        mainTasks: structuredNote.mainTasks || [],
+        collaborators: structuredNote.collaborators || [],
+        problemSolved: (structuredNote.problemSolved || '').trim(),
+        learned: (structuredNote.learned || '').trim(),
+        sparkAwarded: spark,
       });
 
-      const result = await response.json();
-
-      if (!response.ok || !result.success) {
-        throw new Error(result.error || '저장 실패');
+      // 2. users 컬렉션의 sparkTotal 증가 (없으면 생성)
+      const userRef = doc(db, 'users', userId);
+      try {
+        await updateDoc(userRef, {
+          sparkTotal: increment(spark),
+          updatedAt: serverTimestamp(),
+        });
+      } catch {
+        // 문서가 없으면 새로 생성
+        await setDoc(userRef, {
+          uid: userId,
+          displayName: '게스트',
+          sparkTotal: spark,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
       }
 
       // 저장 성공 → 피드로 이동
-      window.location.href = '/feed';
+      router.push('/feed');
     } catch (error) {
       console.error('저장 에러:', error);
       setSaveError(error instanceof Error ? error.message : '저장에 실패했습니다.');
@@ -129,7 +159,7 @@ export default function RecordPage() {
         {/* 인증 대기 */}
         {state === 'auth' && authLoading && (
           <div className="flex flex-col items-center justify-center py-20 space-y-4">
-            <div className="text-6xl animate-bounce">🦊</div>
+            <div className="text-6xl animate-bounce"></div>
             <p className="text-muted-text">준비 중...</p>
           </div>
         )}
@@ -174,7 +204,7 @@ export default function RecordPage() {
             {/* 음성 인식 상태 표시 */}
             {isListening && (
               <p className="text-center text-sm text-primary animate-pulse">
-                🎙️ 말씀하시는 중... (다시 누르면 종료)
+                ️ 말씀하시는 중... (다시 누르면 종료)
               </p>
             )}
 
