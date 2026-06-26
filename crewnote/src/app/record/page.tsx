@@ -86,7 +86,7 @@ export default function RecordPage() {
       const result = await response.json();
 
       if (!response.ok || !result.success) {
-        throw new Error(result.error || '구조화 패');
+        throw new Error(result.error || '구조화 실패');
       }
 
       setStructuredNote(result.data);
@@ -100,7 +100,11 @@ export default function RecordPage() {
   };
 
   const handleSave = async () => {
-    if (!structuredNote || !user) return;
+    if (!structuredNote) return;
+    if (!user) {
+      setSaveError('인증이 필요합니다. 페이지를 새로고침해주세요.');
+      return;
+    }
 
     setSaveError(null);
 
@@ -109,7 +113,7 @@ export default function RecordPage() {
       const userId = user.uid;
 
       const db = getFirebaseDb();
-      if (!db) throw new Error('Firestore 초기화 실패');
+      if (!db) throw new Error('Firestore 초기화 패');
 
       // 1. notes 컬렉션에 문서 추가
       await addDoc(collection(db, 'notes'), {
@@ -159,7 +163,7 @@ export default function RecordPage() {
         {/* 인증 대기 */}
         {state === 'auth' && authLoading && (
           <div className="flex flex-col items-center justify-center py-20 space-y-4">
-            <div className="text-6xl animate-bounce"></div>
+            <div className="text-6xl animate-bounce">🦊</div>
             <p className="text-muted-text">준비 중...</p>
           </div>
         )}
@@ -204,7 +208,7 @@ export default function RecordPage() {
             {/* 음성 인식 상태 표시 */}
             {isListening && (
               <p className="text-center text-sm text-primary animate-pulse">
-                ️ 말씀하시는 중... (다시 누르면 종료)
+                말씀하시는 중... (다시 누르면 종료)
               </p>
             )}
 
@@ -234,7 +238,7 @@ export default function RecordPage() {
               disabled={!rawInput.trim() && !interimTranscript}
               className="w-full py-4 rounded-xl bg-primary text-white font-bold text-lg shadow-lg shadow-primary/20 hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              정리해주세요 ✨
+              정리해주세요 
             </button>
           </div>
         )}
