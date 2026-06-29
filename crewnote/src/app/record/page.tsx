@@ -10,12 +10,14 @@ import {
   updateDoc,
   increment,
   setDoc,
+  getDoc,
 } from 'firebase/firestore';
 import { getFirebaseDb } from '@/lib/firebase/client';
 import TopBar from '@/components/common/TopBar';
 import { useAuth } from '@/lib/auth/useAuth';
 import { useSpeechRecognition } from '@/lib/hooks/useSpeechRecognition';
 import { SPARK } from '@/lib/constants';
+import { calculateNewStreak } from '@/lib/streak';
 
 // 상태 타입
 type RecordState = 'auth' | 'input' | 'processing' | 'preview';
@@ -131,23 +133,41 @@ export default function RecordPage() {
         sparkAwarded: spark,
       });
 
-      // 2. users 컬렉션의 sparkTotal 증가 (없으면 생성)
+            // 2. users 컬렉션의 sparkTotal 증가 + 스트릭 갱신 (없으면 생성)
       const userRef = doc(db, 'users', userId);
       try {
+        const userSnap = await getDoc(userRef);
+        const userData = userSnap.data();
+        const prevStreak = userData?.currentStreak || 0;
+        const prevLongest = userData?.longestStreak || 0;
+        const lastDate = userData?.lastRecordedDate || null;
+
+        const { currentStreak: newStreak, longestStreak: newLongest, lastRecordedDate: newLastDate } =
+          calculateNewStreak(prevStreak, prevLongest, lastDate);
+
         await updateDoc(userRef, {
           sparkTotal: increment(spark),
+          currentStreak: newStreak,
+          longestStreak: newLongest,
+          lastRecordedDate: newLastDate,
           updatedAt: serverTimestamp(),
         });
       } catch {
         // 문서가 없으면 새로 생성
+        const { currentStreak: newStreak, longestStreak: newLongest, lastRecordedDate: newLastDate } =
+          calculateNewStreak(0, 0, null);
         await setDoc(userRef, {
           uid: userId,
           displayName: '게스트',
           sparkTotal: spark,
+          currentStreak: newStreak,
+          longestStreak: newLongest,
+          lastRecordedDate: newLastDate,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         });
       }
+
 
       // 저장 성공 → 피드로 이동
       router.push('/feed');
