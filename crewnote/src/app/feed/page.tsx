@@ -396,6 +396,16 @@ export default function FeedPage() {
             </svg>
             <span className="text-xs font-medium">기록</span>
           </button>
+                    <button
+            onClick={() => router.push('/achievements')}
+            className="flex flex-col items-center gap-0.5 text-muted-text hover:text-primary transition-colors"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="8" r="7" />
+              <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+            </svg>
+            <span className="text-xs font-medium">성과</span>
+          </button>
         </div>
       </nav>
     </div>

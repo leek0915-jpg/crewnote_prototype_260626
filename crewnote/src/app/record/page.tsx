@@ -179,7 +179,7 @@ export default function RecordPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <TopBar title="오늘의 기록" />
+      <TopBar title="CrewNote" />
 
       <main className="flex-1 max-w-lg mx-auto w-full px-4 py-6">
         {/* 인증 대기 */}
@@ -371,6 +371,44 @@ export default function RecordPage() {
           </div>
         )}
       </main>
+       {/* 하단 네비게이션 */}
+      <nav className="sticky bottom-0 bg-card border-t border-border">
+        <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-around">
+          <button
+            onClick={() => router.push('/feed')}
+            className="flex flex-col items-center gap-0.5 text-muted-text hover:text-primary transition-colors"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+            </svg>
+            <span className="text-xs font-medium">피드</span>
+          </button>
+          <button
+            onClick={() => router.push('/record')}
+            className="flex flex-col items-center gap-0.5 text-primary"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 8v8M8 12h8" />
+            </svg>
+            <span className="text-xs font-medium">기록</span>
+          </button>
+        </div>
+                  <button
+            onClick={() => router.push('/achievements')}
+            className="flex flex-col items-center gap-0.5 text-muted-text hover:text-primary transition-colors"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="8" r="7" />
+              <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+            </svg>
+            <span className="text-xs font-medium">성과</span>
+          </button>
+      </nav>
     </div>
   );
+       
 }
