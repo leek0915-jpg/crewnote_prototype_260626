@@ -66,9 +66,11 @@ export default function RecordPage() {
   };
 
   // 인증 완료 후 자동으로 input 상태로 전환
-  if (!authLoading && user && state === 'auth') {
-    setState('input');
-  }
+  useEffect(() => {
+    if (!authLoading && user && state === 'auth') {
+      setState('input');
+    }
+  }, [authLoading, user, state]);
 
   const handleStructure = async () => {
     if (!rawInput.trim()) return;
@@ -113,7 +115,7 @@ export default function RecordPage() {
       const userId = user.uid;
 
       const db = getFirebaseDb();
-      if (!db) throw new Error('Firestore 초기화 실');
+      if (!db) throw new Error('Firestore 초기화 실패');
 
       // 1. notes 컬렉션에 문서 추가
       await addDoc(collection(db, 'notes'), {
