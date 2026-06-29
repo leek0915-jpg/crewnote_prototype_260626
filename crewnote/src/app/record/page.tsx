@@ -371,9 +371,9 @@ export default function RecordPage() {
           </div>
         )}
       </main>
-       {/* 하단 네비게이션 */}
+           {/* 하단 네비게이션 */}
       <nav className="sticky bottom-0 bg-card border-t border-border">
-        <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-around">
+        <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-evenly">
           <button
             onClick={() => router.push('/feed')}
             className="flex flex-col items-center gap-0.5 text-muted-text hover:text-primary transition-colors"
@@ -396,8 +396,7 @@ export default function RecordPage() {
             </svg>
             <span className="text-xs font-medium">기록</span>
           </button>
-        </div>
-                  <button
+          <button
             onClick={() => router.push('/achievements')}
             className="flex flex-col items-center gap-0.5 text-muted-text hover:text-primary transition-colors"
           >
@@ -405,8 +404,9 @@ export default function RecordPage() {
               <circle cx="12" cy="8" r="7" />
               <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
             </svg>
-            <span className="text-xs font-medium">성과</span>
+            <span className="text-xs font-medium">업적</span>
           </button>
+        </div>
       </nav>
     </div>
   );

@@ -69,7 +69,7 @@ export default function AchievementsPage() {
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur border-b border-border">
         <div className="max-w-lg mx-auto px-4 h-12 flex items-center gap-3">
           <span className="text-xl">{BRAND.mascot.emoji}</span>
-          <h1 className="font-semibold text-foreground">나의 성과</h1>
+          <h1 className="font-semibold text-foreground">나의 업적</h1>
         </div>
       </header>
 
@@ -209,7 +209,7 @@ export default function AchievementsPage() {
               <circle cx="12" cy="8" r="7" />
               <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
             </svg>
-            <span className="text-xs font-medium">성과</span>
+            <span className="text-xs font-medium">업적</span>
           </button>
         </div>
       </nav>
