@@ -70,3 +70,71 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-primary);
 }
+
+/* =========================================
+   노리 마스코트 애니메이션
+   ========================================= */
+
+/* 본체: 떠오름 + 미세한 기울임/숨쉬기 (단순 상하 이동 ❌) */
+.nori-anim {
+  transform-origin: bottom center;
+  will-change: transform;
+}
+.nori-anim.is-animated {
+  animation: nori-bob 4.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+@keyframes nori-bob {
+  0%   { transform: translateY(0)     rotate(0deg)    scale(1); }
+  20%  { transform: translateY(-5px)  rotate(-1.6deg) scale(1.004); }
+  50%  { transform: translateY(-10px) rotate(0deg)    scale(1.012); }
+  80%  { transform: translateY(-5px)  rotate(1.6deg)  scale(1.004); }
+  100% { transform: translateY(0)     rotate(0deg)    scale(1); }
+}
+
+/* 바닥 그림자: 떠오를수록 작고 옅게 → 입체감 */
+.nori-ground {
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 56%;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(43, 43, 43, 0.22), rgba(43, 43, 43, 0) 70%);
+  transform: translateX(-50%) scale(1);
+  z-index: 0;
+}
+.nori-ground.is-animated {
+  animation: nori-ground 4.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+@keyframes nori-ground {
+  0%, 100% { transform: translateX(-50%) scale(1);    opacity: 0.6; }
+  50%      { transform: translateX(-50%) scale(0.78); opacity: 0.32; }
+}
+
+/* 반짝이 ✦ */
+.nori-sp {
+  position: absolute;
+  color: var(--color-primary);
+  font-size: 0.85rem;
+  line-height: 1;
+  opacity: 0;
+  animation: nori-twinkle 2.6s ease-in-out infinite;
+}
+.nori-sp1 { top: 6%;  left: 4%;  font-size: 1rem;    animation-delay: 0s; }
+.nori-sp2 { top: 0%;  right: 8%; color: #FFC15E;     animation-delay: 0.9s; }
+.nori-sp3 { top: 30%; right: 0%; font-size: 0.7rem;  animation-delay: 1.7s; }
+@keyframes nori-twinkle {
+  0%, 100% { opacity: 0;   transform: scale(0.4) rotate(0deg); }
+  40%      { opacity: 1;   transform: scale(1.1) rotate(90deg); }
+  60%      { opacity: 0.9; transform: scale(1)   rotate(120deg); }
+}
+
+/* 접근성: 모션 최소화 설정 시 애니메이션 정지 */
+@media (prefers-reduced-motion: reduce) {
+  .nori-anim.is-animated,
+  .nori-ground.is-animated,
+  .nori-sp {
+    animation: none !important;
+  }
+  .nori-sp { opacity: 0; }
+}
