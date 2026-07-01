@@ -51,7 +51,7 @@ export default function LandingPage() {
               로그인
             </button>
             <button
-              onClick={() => router.push('/record')}
+              onClick={() => router.push('/login')}
               className="px-5 md:px-8 py-2.5 md:py-3 rounded-full font-bold text-sm text-white transition-all hover:scale-105 shadow-lg shadow-[#FF7A59]/30"
               style={{ backgroundColor: '#FF7A59' }}
             >
@@ -91,7 +91,7 @@ export default function LandingPage() {
 
           <div className="flex flex-col items-center gap-4 md:gap-6">
             <button
-              onClick={() => router.push('/record')}
+              onClick={() => router.push('/login')}
               className="px-10 md:px-16 py-5 md:py-8 rounded-[2rem] md:rounded-[2.5rem] font-black text-xl md:text-[1.75rem] text-white transition-all hover:scale-[1.05] shadow-2xl shadow-[#FF7A59]/40 active:scale-95"
               style={{ backgroundColor: '#FF7A59' }}
             >
@@ -299,7 +299,7 @@ export default function LandingPage() {
             &ldquo;내일의 당신을 위해,<br /><span className="hoverpop text-[#FF7A59]">오늘의 10초</span>를 기록해보세요&rdquo;
           </h2>
           <button
-            onClick={() => router.push('/record')}
+            onClick={() => router.push('/login')}
             className="px-12 md:px-20 py-6 md:py-10 rounded-[2.5rem] md:rounded-[3rem] font-black text-2xl md:text-4xl text-white transition-all hover:scale-[1.05] shadow-2xl shadow-[#FF7A59]/40 active:scale-95"
             style={{ backgroundColor: '#FF7A59' }}
           >

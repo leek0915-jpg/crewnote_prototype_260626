@@ -33,6 +33,11 @@ export default function NoteDetailPage() {
     load();
   }, [id, user, loading]);
 
+  // 로그인 안 됐으면 로그인 화면으로
+  useEffect(() => {
+    if (!loading && !user) router.replace('/login');
+  }, [loading, user, router]);
+
   const handleDelete = async () => {
     if (!note || !user) return;
     setDeleting(true);

@@ -1,13 +1,15 @@
 'use client';
 
 /**
- * 로그인 화면 (시연용 목업)
- * - 실제 인증 연결은 아직 없음. 구글 버튼/역할 선택은 화면 이동만 한다.
- * - 방향성(구글 로그인 + 팀원/팀장 구분)을 시연에서 보여주기 위한 UI.
+ * 로그인 화면 — 구글 로그인
+ * 로그인 성공 후: 팀 있으면 /feed, 없으면 /onboarding 으로 이동
  */
 
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Nori from '@/components/common/Nori';
+import { useAuth } from '@/lib/auth/useAuth';
+import { useProfile } from '@/lib/auth/useProfile';
 
 function GoogleIcon() {
   return (
@@ -22,59 +24,61 @@ function GoogleIcon() {
 
 export default function LoginPage() {
   const router = useRouter();
+  const { user, loading, error, signInWithGoogle } = useAuth();
+  const { profile, loading: profileLoading } = useProfile();
+  const [signingIn, setSigningIn] = useState(false);
+
+  // 로그인 완료 후 라우팅
+  useEffect(() => {
+    if (loading || !user || profileLoading) return;
+    if (!profile) return; // 문서 생성 대기
+    if (profile.teamId) router.replace('/feed');
+    else router.replace('/onboarding');
+  }, [user, loading, profile, profileLoading, router]);
+
+  const handleGoogle = async () => {
+    setSigningIn(true);
+    try {
+      await signInWithGoogle();
+    } catch {
+      // error 상태에 표시됨
+    } finally {
+      setSigningIn(false);
+    }
+  };
+
+  const busy = signingIn || (!!user && (profileLoading || !profile));
 
   return (
     <div className="min-h-screen bg-[#FFF1E6] flex flex-col items-center justify-center px-6 py-10 text-[#2B2B2B]">
       <div className="w-full max-w-sm flex flex-col items-center text-center">
-        {/* 마스코트 */}
         <Nori mood="wave" sizeClass="h-[150px]" />
 
         <h1 className="mt-4 text-3xl font-black text-[#FF7A59] tracking-tight">CrewNote</h1>
         <p className="mt-2 text-[#6B5D54] font-medium">우리 팀의 오늘을 기록해요</p>
 
-        {/* 구글 로그인 (목업) */}
         <button
-          onClick={() => router.push('/feed')}
-          className="mt-8 w-full flex items-center justify-center gap-3 bg-white border border-[#E5DCD3] rounded-2xl py-4 font-bold text-[#2B2B2B] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"
+          onClick={handleGoogle}
+          disabled={busy}
+          className="mt-8 w-full flex items-center justify-center gap-3 bg-white border border-[#E5DCD3] rounded-2xl py-4 font-bold text-[#2B2B2B] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all disabled:opacity-60"
         >
-          <GoogleIcon />
-          Google 계정으로 계속하기
+          {busy ? (
+            <span className="w-5 h-5 rounded-full border-2 border-[#FF7A59] border-t-transparent animate-spin" />
+          ) : (
+            <GoogleIcon />
+          )}
+          {busy ? '로그인 중...' : 'Google 계정으로 계속하기'}
         </button>
 
-        <p className="mt-3 text-xs text-[#6B5D54]/60">
-          로그인하면 팀에서 나의 기록이 안전하게 관리돼요
-        </p>
+        <p className="mt-3 text-xs text-[#6B5D54]/60">로그인하면 팀에서 나의 기록이 안전하게 관리돼요</p>
 
-        {/* 역할 미리보기 (시연용) */}
-        <div className="mt-10 w-full">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex-1 h-px bg-[#E5DCD3]" />
-            <span className="text-xs font-bold text-[#6B5D54]/50 uppercase tracking-widest">데모 미리보기</span>
-            <div className="flex-1 h-px bg-[#E5DCD3]" />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => router.push('/feed')}
-              className="rounded-2xl bg-white border border-[#E5DCD3] p-4 text-left hover:-translate-y-0.5 hover:shadow-md transition-all"
-            >
-              <div className="text-2xl mb-1">🙋</div>
-              <p className="font-bold text-sm">팀원으로 둘러보기</p>
-              <p className="text-xs text-[#6B5D54]/70 mt-0.5">내 기록 화면</p>
-            </button>
-            <button
-              onClick={() => router.push('/team')}
-              className="rounded-2xl bg-[#FF7A59] text-white p-4 text-left hover:-translate-y-0.5 hover:shadow-lg shadow-[#FF7A59]/30 transition-all"
-            >
-              <div className="text-2xl mb-1">👑</div>
-              <p className="font-bold text-sm">팀장으로 둘러보기</p>
-              <p className="text-xs text-white/80 mt-0.5">팀 대시보드</p>
-            </button>
-          </div>
-        </div>
+        {error && (
+          <p className="mt-4 text-sm text-red-500 bg-red-50 rounded-xl px-4 py-2">{error}</p>
+        )}
 
         <button
           onClick={() => router.push('/landing')}
-          className="mt-8 text-sm text-[#6B5D54]/60 hover:text-[#FF7A59] transition-colors"
+          className="mt-10 text-sm text-[#6B5D54]/60 hover:text-[#FF7A59] transition-colors"
         >
           ← 소개 페이지로
         </button>

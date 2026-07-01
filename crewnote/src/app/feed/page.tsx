@@ -15,6 +15,7 @@ import {
 import { getFirebaseDb } from '@/lib/firebase/client';
 import TopBar from '@/components/common/TopBar';
 import { useAuth } from '@/lib/auth/useAuth';
+import { useProfile } from '@/lib/auth/useProfile';
 import { BRAND } from '@/lib/constants';
 
 // Note 타입
@@ -51,11 +52,14 @@ function getBadgeInfo(spark: number) {
 
 export default function FeedPage() {
   const router = useRouter();
-  const { user, loading: authLoading, error: authError, retryAuth } = useAuth();
+  const { user, loading: authLoading, error: authError, signOutUser } = useAuth();
+  const { profile } = useProfile();
   const [state, setState] = useState<PageState>('auth');
   const [notes, setNotes] = useState<NoteCard[]>([]);
   const [sparkTotal, setSparkTotal] = useState(0);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [joinCode, setJoinCode] = useState('');
+  const [inviteCopied, setInviteCopied] = useState(false);
 
   // 노트 로드 함수
   const loadNotes = useCallback(async () => {
@@ -109,6 +113,41 @@ export default function FeedPage() {
       loadNotes();
     }
   }, [authLoading, user, loadNotes]);
+
+  // 로그인 안 됐으면 로그인 화면으로
+  useEffect(() => {
+    if (!authLoading && !user) router.replace('/login');
+  }, [authLoading, user, router]);
+
+  const handleLogout = async () => {
+    await signOutUser();
+    router.replace('/login');
+  };
+
+  // 팀장이면 초대 코드 로드
+  useEffect(() => {
+    if (profile?.role !== 'leader' || !profile.teamId) return;
+    const db = getFirebaseDb();
+    if (!db) return;
+    getDoc(doc(db, 'teams', profile.teamId))
+      .then((snap) => {
+        if (snap.exists()) setJoinCode(snap.data().joinCode || '');
+      })
+      .catch(() => {});
+  }, [profile?.role, profile?.teamId]);
+
+  const copyInvite = () => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const msg =
+      `[CrewNote] 우리 팀에 초대해요! 🦊\n` +
+      `${origin}/login 에서 구글 로그인 후,\n` +
+      `'참여 코드로 팀 참여'에 아래 코드를 입력하세요.\n\n` +
+      `참여 코드: ${joinCode}`;
+    navigator.clipboard?.writeText(msg).then(() => {
+      setInviteCopied(true);
+      setTimeout(() => setInviteCopied(false), 1600);
+    });
+  };
 
   // 노트 삭제 (Spark 차감 포함)
   const handleDeleteNote = async (note: NoteCard) => {
@@ -235,6 +274,53 @@ export default function FeedPage() {
       <TopBar />
 
       <main className="flex-1 max-w-lg mx-auto w-full px-4 py-6">
+        {/* 사용자 인사 + 로그아웃 */}
+        {user && (
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm text-muted-text truncate">
+              안녕하세요, <span className="font-bold text-foreground">{profile?.displayName || '기록가'}</span>님
+            </p>
+            <button
+              onClick={handleLogout}
+              className="text-xs font-medium text-muted-text hover:text-foreground px-2 py-1.5 transition-colors flex-shrink-0"
+            >
+              로그아웃
+            </button>
+          </div>
+        )}
+
+        {/* 팀장 전용: 팀원 초대 코드 + 대시보드 */}
+        {profile?.role === 'leader' && (
+          <div className="mb-5 rounded-2xl bg-card border border-border p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-sm">👑</span>
+              <span className="text-sm font-bold text-foreground">팀원 초대</span>
+            </div>
+            <div className="flex items-end justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs text-muted-text mb-0.5">참여 코드</p>
+                <p className="text-3xl font-black tracking-[0.22em] text-primary leading-none">{joinCode || '····'}</p>
+              </div>
+              <div className="flex flex-col gap-2 flex-shrink-0">
+                <button
+                  onClick={copyInvite}
+                  disabled={!joinCode}
+                  className="text-xs font-bold text-white bg-primary px-3.5 py-2 rounded-full hover:bg-primary-dark transition-colors whitespace-nowrap disabled:opacity-50"
+                >
+                  {inviteCopied ? '복사됨! ✓' : '초대 문구 복사'}
+                </button>
+                <button
+                  onClick={() => router.push('/team')}
+                  className="text-xs font-bold text-primary border border-primary/30 px-3.5 py-2 rounded-full hover:bg-cream-dark transition-colors whitespace-nowrap"
+                >
+                  팀 대시보드 →
+                </button>
+              </div>
+            </div>
+            <p className="text-[11px] text-muted-text mt-3">이 코드를 팀원에게 공유하면 우리 팀에 합류할 수 있어요.</p>
+          </div>
+        )}
+
         {/* 인증 대기 */}
         {state === 'auth' && authLoading && (
           <div className="flex flex-col items-center justify-center py-20 space-y-4">
@@ -248,10 +334,10 @@ export default function FeedPage() {
             <div className="text-6xl">⚠️</div>
             <p className="text-muted-text text-center">{authError}</p>
             <button
-              onClick={retryAuth}
+              onClick={() => router.push('/login')}
               className="px-6 py-2 rounded-lg bg-primary text-white font-medium hover:bg-primary-dark transition-colors"
             >
-              다시 시도
+              로그인 화면으로
             </button>
           </div>
         )}

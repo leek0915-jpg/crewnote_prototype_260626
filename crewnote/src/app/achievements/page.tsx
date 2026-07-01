@@ -36,6 +36,11 @@ export default function AchievementsPage() {
   const [longestStreak, setLongestStreak] = useState(0);
   const [loaded, setLoaded] = useState(false);
 
+  // 로그인 안 됐으면 로그인 화면으로
+  useEffect(() => {
+    if (!authLoading && !user) router.replace('/login');
+  }, [authLoading, user, router]);
+
   useEffect(() => {
     if (!user) return;
     const load = async () => {

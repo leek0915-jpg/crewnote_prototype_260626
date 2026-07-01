@@ -15,6 +15,7 @@ import {
 import { getFirebaseDb } from '@/lib/firebase/client';
 import TopBar from '@/components/common/TopBar';
 import { useAuth } from '@/lib/auth/useAuth';
+import { useProfile } from '@/lib/auth/useProfile';
 import { useSpeechRecognition } from '@/lib/hooks/useSpeechRecognition';
 import { SPARK } from '@/lib/constants';
 import { calculateNewStreak } from '@/lib/streak';
@@ -24,7 +25,8 @@ type RecordState = 'auth' | 'input' | 'processing' | 'preview';
 
 export default function RecordPage() {
   const router = useRouter();
-  const { user, loading: authLoading, error: authError, retryAuth } = useAuth();
+  const { user, loading: authLoading, error: authError } = useAuth();
+  const { profile } = useProfile();
   const [state, setState] = useState<RecordState>('auth');
   const [rawInput, setRawInput] = useState('');
   const [structuredNote, setStructuredNote] = useState<{
@@ -74,6 +76,11 @@ export default function RecordPage() {
     }
   }, [authLoading, user, state]);
 
+  // 로그인 안 됐으면 로그인 화면으로
+  useEffect(() => {
+    if (!authLoading && !user) router.replace('/login');
+  }, [authLoading, user, router]);
+
   const handleStructure = async () => {
     if (!rawInput.trim()) return;
 
@@ -122,6 +129,7 @@ export default function RecordPage() {
       // 1. notes 컬렉션에 문서 추가
       await addDoc(collection(db, 'notes'), {
         userId,
+        teamId: profile?.teamId ?? null,
         createdAt: serverTimestamp(),
         rawInput,
         source: 'text' as const,
@@ -195,10 +203,10 @@ export default function RecordPage() {
             <div className="text-6xl">️</div>
             <p className="text-muted-text text-center">{authError}</p>
             <button
-              onClick={retryAuth}
+              onClick={() => router.push('/login')}
               className="px-6 py-2 rounded-lg bg-primary text-white font-medium hover:bg-primary-dark transition-colors"
             >
-              다시 시도
+              로그인 화면으로
             </button>
           </div>
         )}
@@ -340,10 +348,10 @@ export default function RecordPage() {
             {!user && !authLoading && (
               <div className="text-center">
                 <button
-                  onClick={retryAuth}
+                  onClick={() => router.push('/login')}
                   className="text-sm text-primary underline hover:text-primary-dark"
                 >
-                  🔐 로그인 재시도하기
+                  🔐 로그인 화면으로
                 </button>
               </div>
             )}
