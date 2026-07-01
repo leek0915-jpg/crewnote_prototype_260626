@@ -54,6 +54,9 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* 한국어 단어가 중간에서 쪼개지지 않게 (긴 영문/URL은 그래도 줄바꿈) */
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 /* 스크롤바 스타일 (크롬/사파리) */
@@ -152,6 +155,22 @@ body {
   box-shadow: 0 30px 60px rgba(255, 122, 89, 0.18);
 }
 
+/* =========================================
+   스크롤 등장 애니메이션 (아래서 스르륵)
+   ========================================= */
+[data-reveal] {
+  transition: opacity 0.7s ease, transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* JS(IntersectionObserver)가 켜졌을 때만 숨김 시작 → JS 없으면 항상 보임(안전) */
+.reveal-on [data-reveal] {
+  opacity: 0;
+  transform: translateY(30px);
+}
+.reveal-on [data-reveal].in-view {
+  opacity: 1;
+  transform: none;
+}
+
 /* 접근성: 모션 최소화 설정 시 애니메이션 정지 */
 @media (prefers-reduced-motion: reduce) {
   .nori-anim.is-animated,
@@ -163,5 +182,9 @@ body {
   .hoverpop:hover,
   .card-lift:hover {
     transform: none;
+  }
+  .reveal-on [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }

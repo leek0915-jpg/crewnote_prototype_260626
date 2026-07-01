@@ -1,10 +1,38 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Nori from '@/components/common/Nori';
 
 export default function LandingPage() {
   const router = useRouter();
+
+  // 스크롤하면 섹션이 아래서 스르륵 나타나는 효과.
+  // 스크롤 위치 기반(IntersectionObserver 미의존) → 어떤 환경에서도 확실히 나타남.
+  // JS가 안 돌면 reveal-on이 안 붙어서 그냥 다 보임 = 안전.
+  useEffect(() => {
+    const els = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
+    if (els.length === 0) return;
+    document.documentElement.classList.add('reveal-on');
+    const reveal = () => {
+      const trigger = window.innerHeight * 0.88;
+      for (const el of els) {
+        if (!el.classList.contains('in-view') && el.getBoundingClientRect().top < trigger) {
+          el.classList.add('in-view');
+        }
+      }
+    };
+    reveal();
+    const t = setTimeout(reveal, 120); // 이미지 로드 등으로 위치가 바뀔 때 대비
+    window.addEventListener('scroll', reveal, { passive: true });
+    window.addEventListener('resize', reveal);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener('scroll', reveal);
+      window.removeEventListener('resize', reveal);
+      document.documentElement.classList.remove('reveal-on');
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#FFF1E6] text-[#2B2B2B] font-sans selection:bg-[#FF7A59] selection:text-white pb-20 md:pb-32 overflow-x-hidden">
@@ -80,7 +108,7 @@ export default function LandingPage() {
         ========================================================
       */}
       <section className="py-24 md:py-48 px-4 md:px-6 bg-white rounded-[2.5rem] md:rounded-[5rem] shadow-[0_-20px_60px_rgba(0,0,0,0.03)] z-10 relative mx-2 md:mx-4">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-5xl mx-auto" data-reveal>
           <div className="mb-14 md:mb-32 text-center">
             <h2 className="text-3xl sm:text-4xl md:text-6xl font-black tracking-tight md:tracking-tighter leading-[1.25] pb-1 mb-5 md:mb-10 [word-break:keep-all] text-balance">
               업무일지,<br /><span className="hoverpop text-[#6B5D54]/30 italic">왜 아무도 안 쓸까요?</span>
@@ -112,7 +140,7 @@ export default function LandingPage() {
         ========================================================
       */}
       <section className="py-24 md:py-48 px-5 md:px-6 bg-[#FFF1E6]">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto" data-reveal>
           <div className="mb-14 md:mb-32 text-center">
             <div className="flex justify-center mb-6 md:mb-10">
               <Nori mood="idea" sizeClass="h-[100px] md:h-[140px]" />
@@ -146,7 +174,7 @@ export default function LandingPage() {
         ========================================================
       */}
       <section className="py-24 md:py-48 px-4 md:px-6 bg-white overflow-hidden relative">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-5xl mx-auto" data-reveal>
           <div className="mb-12 md:mb-24 text-center">
             <h2 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight md:tracking-tighter mb-5 md:mb-8 leading-[1.3] pb-1 [word-break:keep-all] text-balance px-2">말뿐이었던 일과가<br />정교한 보고서가 됩니다</h2>
           </div>
@@ -200,7 +228,7 @@ export default function LandingPage() {
       */}
       <section className="py-24 md:py-48 px-4 md:px-6 bg-[#2B2B2B] text-white rounded-[2.5rem] md:rounded-[5rem] mx-2 md:mx-4 relative overflow-hidden">
         <div className="absolute left-[-10%] top-[20%] w-[400px] h-[400px] bg-[#FF7A59] rounded-full blur-[150px] opacity-10"></div>
-        <div className="max-w-5xl mx-auto relative z-10">
+        <div className="max-w-5xl mx-auto relative z-10" data-reveal>
           <div className="text-center mb-14 md:mb-32">
             <span className="inline-block text-[#FF7A59] font-black text-xs md:text-sm tracking-widest uppercase mb-4 md:mb-6">Continuous Engine</span>
             <h2 className="text-3xl sm:text-4xl md:text-6xl font-black tracking-tight md:tracking-tighter leading-[1.28] md:leading-[1.15] pb-1 mb-5 md:mb-10 [word-break:keep-all] text-balance">
@@ -230,7 +258,7 @@ export default function LandingPage() {
         ========================================================
       */}
       <section className="py-24 md:py-48 px-5 md:px-6">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-5xl mx-auto" data-reveal>
           <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16 bg-white rounded-[2.5rem] md:rounded-[4rem] p-8 md:p-16 shadow-[0_30px_80px_rgba(255,122,89,0.10)]">
             <div className="shrink-0">
               <Nori mood="think" sizeClass="h-[170px] md:h-[260px]" />
@@ -263,7 +291,7 @@ export default function LandingPage() {
         ========================================================
       */}
       <section className="py-24 md:py-72 px-5 text-center">
-        <div className="max-w-4xl mx-auto flex flex-col items-center">
+        <div className="max-w-4xl mx-auto flex flex-col items-center" data-reveal>
           <div className="mb-8 md:mb-14">
             <Nori mood="celebrate" sizeClass="h-[150px] md:h-[230px]" />
           </div>

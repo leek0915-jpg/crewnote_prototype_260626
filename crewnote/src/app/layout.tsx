@@ -13,9 +13,23 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// 배포 도메인(절대경로)을 잡아 OG/공유 미리보기가 정상 동작하게 함
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : 'http://localhost:3000');
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: BRAND.name,
   description: BRAND.tagline,
+  openGraph: {
+    title: BRAND.name,
+    description: BRAND.tagline,
+    type: 'website',
+    locale: 'ko_KR',
+  },
 };
 
 export default function RootLayout({
