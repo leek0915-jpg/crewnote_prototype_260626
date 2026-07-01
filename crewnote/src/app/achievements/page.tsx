@@ -10,11 +10,11 @@ import { BRAND } from '@/lib/constants';
 // 뱃지 임계값 (피드와 동일) — 이모지 모두 채움
 const BADGE_TIERS = [
   { threshold: 10,   emoji: '🌱', name: '첫 발걸음' },
-  { threshold: 50,   emoji: '', name: '기록의 습관' },
+  { threshold: 50,   emoji: '🌿', name: '기록의 습관' },
   { threshold: 100,  emoji: '⭐', name: '성실한 기록가' },
   { threshold: 300,  emoji: '💎', name: '열정의 기록가' },
   { threshold: 500,  emoji: '🏆', name: '레전드 기록가' },
-  { threshold: 1000, emoji: '', name: '기록의 신' },
+  { threshold: 1000, emoji: '👑', name: '기록의 신' },
 ];
 
 function getBadgeInfo(spark: number) {
@@ -112,7 +112,7 @@ export default function AchievementsPage() {
 
         {/* 뱃지 진행 상황 */}
         <div className="bg-card rounded-2xl p-5 border border-border">
-          <h2 className="text-lg font-bold text-foreground mb-4">지 컬렉션</h2>
+          <h2 className="text-lg font-bold text-foreground mb-4">배지 컬렉션</h2>
           <p className="text-sm text-muted-text mb-4">
             달성한 뱃지: <span className="font-bold text-primary">{achievedCount}</span> / {BADGE_TIERS.length}
           </p>

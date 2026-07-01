@@ -373,7 +373,7 @@ export default function RecordPage() {
       </main>
            {/* 하단 네비게이션 */}
       <nav className="sticky bottom-0 bg-card border-t border-border">
-        <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-evenly">
+        <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-around">
           <button
             onClick={() => router.push('/feed')}
             className="flex flex-col items-center gap-0.5 text-muted-text hover:text-primary transition-colors"

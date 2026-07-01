@@ -15,13 +15,21 @@ export default function LandingPage() {
           <div className="flex items-center gap-3">
             <span className="text-2xl md:text-3xl font-black text-[#FF7A59]">CrewNote</span>
           </div>
-          <button
-            onClick={() => router.push('/record')}
-            className="px-5 md:px-8 py-2.5 md:py-3 rounded-full font-bold text-sm text-white transition-all hover:scale-105 shadow-lg shadow-[#FF7A59]/30"
-            style={{ backgroundColor: '#FF7A59' }}
-          >
-            시작하기
-          </button>
+          <div className="flex items-center gap-2 md:gap-3">
+            <button
+              onClick={() => router.push('/login')}
+              className="px-4 md:px-5 py-2.5 md:py-3 rounded-full font-bold text-sm text-[#FF7A59] hover:bg-[#FFE4CC]/60 transition-colors"
+            >
+              로그인
+            </button>
+            <button
+              onClick={() => router.push('/record')}
+              className="px-5 md:px-8 py-2.5 md:py-3 rounded-full font-bold text-sm text-white transition-all hover:scale-105 shadow-lg shadow-[#FF7A59]/30"
+              style={{ backgroundColor: '#FF7A59' }}
+            >
+              시작하기
+            </button>
+          </div>
         </div>
       </header>
 
@@ -38,8 +46,8 @@ export default function LandingPage() {
 
           <h1 className="text-[2.1rem] sm:text-5xl md:text-7xl lg:text-[7.5rem] font-black tracking-[-0.03em] leading-[1.25] md:leading-[1.12] pb-1 mb-6 md:mb-10 text-[#2B2B2B] [word-break:keep-all] text-balance">
             업무 기록,<br />
-            <span className="text-[#FF7A59]">10분</span>이{' '}
-            <span className="relative inline-block">
+            <span className="hoverpop text-[#FF7A59]">10분</span>이{' '}
+            <span className="hoverpop relative inline-block">
               10초
               <svg className="absolute -bottom-1 left-0 w-full h-3 md:h-4" viewBox="0 0 100 20" preserveAspectRatio="none">
                 <path d="M0 10 Q 25 20 50 10 T 100 10" stroke="#FFC15E" strokeWidth="8" fill="transparent" />
@@ -75,7 +83,7 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto">
           <div className="mb-14 md:mb-32 text-center">
             <h2 className="text-3xl sm:text-4xl md:text-6xl font-black tracking-tight md:tracking-tighter leading-[1.25] pb-1 mb-5 md:mb-10 [word-break:keep-all] text-balance">
-              업무일지,<br /><span className="text-[#6B5D54]/30 italic">왜 아무도 안 쓸까요?</span>
+              업무일지,<br /><span className="hoverpop text-[#6B5D54]/30 italic">왜 아무도 안 쓸까요?</span>
             </h2>
             <p className="text-base sm:text-lg md:text-2xl text-[#6B5D54] leading-relaxed max-w-2xl mx-auto">기존 업무일지의 고질적인 &lsquo;데이터 통증&rsquo;을 정의했습니다.</p>
           </div>
@@ -86,7 +94,7 @@ export default function LandingPage() {
               { id: '02', title: '반나절이면 끝나는 기억력', desc: '바쁜 오후가 되면 오전의 결정 사항들은 이미 가물가물해집니다. 기록 타이밍을 놓치기 때문이죠.' },
               { id: '03', title: '쌓이지 않는 파편화된 메모', desc: '여기저기 대충 적어둔 포스트잇과 카톡 나만의 채팅방. 결국 나중엔 검색조차 안 되는 쓰레기가 됩니다.' }
             ].map((item, i) => (
-              <div key={i} className="flex flex-col md:flex-row gap-3 md:gap-16 items-start p-7 md:p-16 rounded-[1.75rem] md:rounded-[4rem] bg-[#FFF1E6]/40 hover:bg-[#FFF1E6] transition-all duration-700 group">
+              <div key={i} className="flex flex-col md:flex-row gap-3 md:gap-16 items-start p-7 md:p-16 rounded-[1.75rem] md:rounded-[4rem] bg-[#FFF1E6]/40 hover:bg-[#FFF1E6] hover:-translate-y-1.5 hover:shadow-[0_28px_55px_rgba(255,122,89,0.14)] transition-all duration-500 group">
                 <span className="text-5xl md:text-7xl font-black text-[#FF7A59] opacity-20 group-hover:opacity-100 transition-opacity">{item.id}</span>
                 <div>
                   <h3 className="text-2xl sm:text-3xl md:text-5xl font-black mb-3 md:mb-8 tracking-tight md:tracking-tighter">{item.title}</h3>
@@ -111,7 +119,7 @@ export default function LandingPage() {
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-6xl font-black tracking-tight md:tracking-tighter leading-[1.28] md:leading-[1.18] pb-1 [word-break:keep-all] text-balance">
               노리가 당신의 말을<br />
-              <span className="text-[#FF7A59]">황금 데이터</span>로 바꿔요
+              <span className="hoverpop text-[#FF7A59]">황금 데이터</span>로 바꿔요
             </h2>
           </div>
 
@@ -155,8 +163,8 @@ export default function LandingPage() {
             </div>
 
             {/* After */}
-            <div className="rounded-[1.75rem] md:rounded-[4rem] p-7 md:p-12 bg-white shadow-[0_40px_100px_rgba(255,122,89,0.2)] border-2 border-[#FF7A59] relative overflow-hidden group">
-              <div className="absolute top-0 right-0 p-8 text-8xl opacity-[0.03] group-hover:scale-125 transition-transform">📋</div>
+            <div className="rounded-[1.75rem] md:rounded-[4rem] p-7 md:p-12 bg-white shadow-[0_40px_100px_rgba(255,122,89,0.2)] border-2 border-[#FF7A59] relative group">
+              <div className="absolute top-6 right-6 text-8xl opacity-[0.03] group-hover:scale-125 transition-transform pointer-events-none">📋</div>
               <span className="absolute -top-4 left-6 md:left-12 bg-[#FF7A59] text-white px-4 md:px-6 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-black uppercase tracking-widest whitespace-nowrap">
                 출력 : 정리된 Note
               </span>
@@ -202,12 +210,12 @@ export default function LandingPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-6 md:gap-10">
-            <div className="p-8 md:p-16 rounded-[2rem] md:rounded-[4.5rem] bg-white/5 border border-white/10 backdrop-blur-xl group hover:border-[#FF7A59]/40 transition-all">
+            <div className="p-8 md:p-16 rounded-[2rem] md:rounded-[4.5rem] bg-white/5 border border-white/10 backdrop-blur-xl group hover:border-[#FF7A59]/40 hover:bg-white/[0.08] hover:-translate-y-2 transition-all duration-300">
               <div className="w-16 h-16 md:w-24 md:h-24 bg-[#FF7A59]/20 rounded-2xl md:rounded-3xl flex items-center justify-center text-4xl md:text-6xl mb-6 md:mb-10 group-hover:scale-110 transition-transform">🔥</div>
               <h3 className="text-2xl sm:text-3xl md:text-5xl font-black mb-3 md:mb-8 tracking-tight md:tracking-tighter">연속 기록 스트릭</h3>
               <p className="text-base sm:text-lg md:text-2xl text-white/60 leading-[1.7] tracking-tight font-medium">하루라도 거르면 꺼지는 불꽃. 당신의 성실함을 숫자로 증명하세요. 어느새 매일 기록하는 자신을 발견하게 됩니다.</p>
             </div>
-            <div className="p-8 md:p-16 rounded-[2rem] md:rounded-[4.5rem] bg-white/5 border border-white/10 backdrop-blur-xl group hover:border-[#FFC15E]/40 transition-all">
+            <div className="p-8 md:p-16 rounded-[2rem] md:rounded-[4.5rem] bg-white/5 border border-white/10 backdrop-blur-xl group hover:border-[#FFC15E]/40 hover:bg-white/[0.08] hover:-translate-y-2 transition-all duration-300">
               <div className="w-16 h-16 md:w-24 md:h-24 bg-[#FFC15E]/20 rounded-2xl md:rounded-3xl flex items-center justify-center text-4xl md:text-6xl mb-6 md:mb-10 group-hover:scale-110 transition-transform">✨</div>
               <h3 className="text-2xl sm:text-3xl md:text-5xl font-black mb-3 md:mb-8 tracking-tight md:tracking-tighter">작은 보상, Spark</h3>
               <p className="text-base sm:text-lg md:text-2xl text-white/60 leading-[1.7] tracking-tight font-medium">기록 한 번에 쌓이는 포인트. 레벨별 배지를 수집하는 재미가 단순한 일기 쓰기를 즐거운 수집 활동으로 바꿉니다.</p>
@@ -230,7 +238,7 @@ export default function LandingPage() {
             <div className="text-center md:text-left">
               <span className="inline-block text-[#FF7A59] font-black text-xs md:text-sm tracking-widest uppercase mb-3 md:mb-4">Meet Nori</span>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight md:tracking-tighter mb-4 md:mb-7 leading-[1.25] pb-1 [word-break:keep-all]">
-                업무 기록을 돕는 <span className="text-[#FF7A59]">노리</span>예요
+                업무 기록을 돕는 <span className="hoverpop text-[#FF7A59]">노리</span>예요
               </h2>
               <p className="text-base sm:text-lg md:text-xl text-[#6B5D54] leading-[1.8] mb-6 font-medium">
                 노리는 함께 일하는 즐거움을 아는 성격 좋은 여우예요. 사교적이고 믿음직하며, 슬기롭게 자기 일을 해내는 우리 팀의 든든한 파트너랍니다.
@@ -260,7 +268,7 @@ export default function LandingPage() {
             <Nori mood="celebrate" sizeClass="h-[150px] md:h-[230px]" />
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-6xl font-black tracking-tight md:tracking-tighter mb-10 md:mb-16 leading-[1.3] md:leading-[1.18] pb-1 [word-break:keep-all] text-balance">
-            &ldquo;내일의 당신을 위해,<br /><span className="text-[#FF7A59]">오늘의 10초</span>를 기록해보세요&rdquo;
+            &ldquo;내일의 당신을 위해,<br /><span className="hoverpop text-[#FF7A59]">오늘의 10초</span>를 기록해보세요&rdquo;
           </h2>
           <button
             onClick={() => router.push('/record')}

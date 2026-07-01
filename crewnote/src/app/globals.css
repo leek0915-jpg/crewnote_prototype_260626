@@ -129,6 +129,29 @@ body {
   60%      { opacity: 0.9; transform: scale(1)   rotate(120deg); }
 }
 
+/* =========================================
+   상세페이지 hover 인터랙션
+   ========================================= */
+/* 강조 단어: 마우스 올리면 탱글하게 톡 튀어오름 */
+.hoverpop {
+  display: inline-block;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: default;
+}
+.hoverpop:hover {
+  transform: translateY(-0.12em) scale(1.08) rotate(-1deg);
+}
+
+/* 카드: 마우스 올리면 살짝 떠오르며 그림자 깊어짐 */
+.card-lift {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
+  will-change: transform;
+}
+.card-lift:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 30px 60px rgba(255, 122, 89, 0.18);
+}
+
 /* 접근성: 모션 최소화 설정 시 애니메이션 정지 */
 @media (prefers-reduced-motion: reduce) {
   .nori-anim.is-animated,
@@ -137,4 +160,8 @@ body {
     animation: none !important;
   }
   .nori-sp { opacity: 0; }
+  .hoverpop:hover,
+  .card-lift:hover {
+    transform: none;
+  }
 }
